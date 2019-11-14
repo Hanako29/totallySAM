@@ -13,33 +13,47 @@ def main(inputSam) :
 def extraction(inputSam) :
     with open("mapping.sam", "r") as fSam :
         print("Lancement de l'extraction")
+
+        next(fSam) #Saute la 1ere ligne
+        next(fSam) #Saute la 2eme ligne
         
         for reads in fSam :
-            refFlag = re.search("(^.*?\t\d{1,4}|^.*?\t\*)", reads)
-            
-            if refFlag : #car match pas les 2 premières lignes
-                resRefFlag = refFlag.group(0)
+
+            col = reads.split("\t")
+
+            flag = col[1]
+            #print(flag)
+
+            nomReads = col[0]
+            #print(nomReads)
+
+            cigar = col[5]
+            #print(cigar)
+
+            tagMDZ = col[8]
+            print(tagMDZ)
+
+
+            #refFlag = re.search("(^.*?\t\d{1,4}|^.*?\t\*)", reads)
+            #if refFlag : #car match pas les 2 premières lignes
+            #    resRefFlag = refFlag.group(0)
                 #print(resRefFlag)
-                col = resRefFlag.split("\t")
-                flag = col[1]
+            #    col = resRefFlag.split("\t")
+            #    flag = col[1]
                 #print(flag)
-                
-
                 #nomReads
-                nomReads = col[0]
+            #    nomReads = col[0]
                 #print(nomReads)
-
                 #cigar
-                resCig = re.search("(([0-9]+[MIDNSHPX=]+)+\t)", reads)
-                if resCig:
-                    cigar = resCig.group(0)
+            #    resCig = re.search("(([0-9]+[MIDNSHPX=]+)+\t)", reads)
+            #    if resCig:
+            #        cigar = resCig.group(0)
                     #print(cigar)
-
                 #tag
-                resTag=re.search("(MD\:Z\:([0-9]+[ATGC])+|MD\:Z\:([0-9])+)")
-                if resTag :
-                    tag = resTag.group(0)
-                    print(tag)
+            #    resTag=re.search("(MD\:Z\:([0-9]+[ATGC])+|MD\:Z\:([0-9])+)")
+            #    if resTag :
+            #        tag = resTag.group(0)
+            #        print(tag)
                 
                 
                 #if flag in dicoExt :
@@ -47,18 +61,15 @@ def extraction(inputSam) :
                 #else :
                 #    dicoExt[flag] = 
                     
-        print("nombre d'occurence flags", len(nomReads))
-        print("nombre d'occurence nomReads", )    
-        print("nombre d'occurence cigar",)
-            
+        #print("nombre d'occurence flags", len(nomReads))
+        #print("nombre d'occurence nomReads", )    
+        #print("nombre d'occurence cigar",)
             #Remplissage du dico avec
-            
             #cigar = re.search("(([0-9]+[MIDNSHPX=])+)")]
             #if flag in dicoExt :
             #    dicoExt[flag] = desc.append([])
             #else :
             #dicoExt[flag] = [[re.search("(([0-9]+[MIDNSHPX=])+)")]]
-
         #print(dicoExt)
 
 
