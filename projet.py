@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import re, sys
+#re pour la fonction de recherche (re.search)
+
+
 
 #***********************************************************************************************
 ##Lecture du fichier et extraction
@@ -72,35 +75,57 @@ def desc(extraction) : #pas besoin de mettre l'input quand prend une entrée une
     #Par contre, mettre l'input dans le main
 
     dicoExt = extraction #nécessaire pour utiliser mon dico
+    #print(dicoExt)
 
     #listes de possibilité
     mapped = [67, 73, 83, 89, 99, 115, 121, 131, 137, 147, 153, 163, 179, 185, 97, 145]
     unmapped = [63, 69, 77, 101, 117, 133, 141, 165, 181]
 
     #compteurs
-    cm = 0
+    m = 0 #mapped pour comparer boucle 1 et 2
+    cm = 0 #mapped
     cu = 0 #unmapped
     cp = 0 #partially mapped
     cmu = 0 #one mapped, one unmapped
     cmp = 0 #one mapped, one partially
     
 
-    #boucle de description
+    #boucle 1 : description rapide (juste reads mappés et non mappés)
     for flag in dicoExt :
         for nomReads in dicoExt[flag]:
-            print(flag)
+            #print(flag)
             if flag in mapped :
             #    print("je suis dans mapped")
-                cm += 1
+                m += 1
             elif flag in unmapped : #elif = else if
             #    print("là non")
                 cu += 1
-    print("mapped ", cm)
+    print("mapped ", m)
     print("unmapped ", cu)
-    print(cm+cu)
+    print(m+cu)
 
+    #for flag in dicoExt :
+    #    for nomReads in dicoExt[flag]:
+    #        print(dicoExt[flag][nomReads][1])
+    
+    #boucle 2 : réelle
+    for flag in dicoExt :
+        for nomReads in dicoExt[flag]:
+            if flag in mapped :
+                #print(dicoExt[flag][nomReads][1])
+                if dicoExt[flag][nomReads][1] != 'MD:Z:100':
+                    #print("je suis dans cp")
+                    cp += 1
+                else :
+                    #print("je suis dans cm")
+                    cm += 1
+            #if flag in unmapped :
+            #    if 
 
-
+    print("perfectly mapped ",cm)
+    print("partially mapped ", cp)
+    print("total mapped (cm +cp) ", cm+cp)
+    print("total mapped (boucle 1) ",m)
 
 
 
