@@ -80,16 +80,24 @@ def desc(extraction) : #pas besoin de mettre l'input quand prend une entrée une
     #listes de possibilité
     mapped = [67, 73, 83, 89, 97, 99, 115, 121, 131, 137, 145, 147, 153, 163, 179, 185]
     unmapped = [63, 69, 77, 101, 117, 133, 141, 165, 181]
-
-
+    pairedMapped1 = [99, 83, 67, 115, 81, 97, 65, 113, 147, 163, 131, 179, 161, 145, 129, 177] #1st read puis 2nd read
+    pairedMapped2 = [147, 163, 131, 179, 161, 145, 129, 177] #2nd read
+    #pairedMapUnmap = [73, 89, 121, 153, 185, 137] #just the mapped read
+    pairedMapUnmap = [133, 165, 181, 101, 117, 69] #just the unmapped read
+    pairedUnmapped = [77]
+                    
     #compteurs
     m = 0 #mapped pour comparer boucle 1 et 2
     rm = 0 #mapped
     u = 0 #unmapped boucle 1
     ru = 0 #unmapped
-    cp = 0 #partially mapped
+    rp = 0 #partially mapped
+    pm = 0 #pair perfectly mapped
     pmu = 0 #one mapped, one unmapped
     pmp = 0 #one mapped, one partially
+    pmm = 0 #paire mapped mapped
+    puu = 0 #paires unmapped unmapped
+    ppu = 0 #paires partial unmapped
     
 
     #boucle 1 : description rapide (juste reads mappés et non mappés)
@@ -116,29 +124,48 @@ def desc(extraction) : #pas besoin de mettre l'input quand prend une entrée une
  
     
     #boucle 2 : réelle
+
+    nameMappedPerfect = []
+    nameMappedPartially = []
+    nameUnmapped = []
+    
     for flag in dicoExt :
         for nomReads in dicoExt[flag]:
             if flag in mapped :
-                if (dicoExt[flag][nomReads][1] != 'MD:Z:100' or dicoExt[flag][nomReads][0] != '100M'):
-                    #print("je suis dans cp")
-                    rp += 1
-                else :
-                    #print("je suis dans cm")
+                if (dicoExt[flag][nomReads][1] == 'MD:Z:100' or dicoExt[flag][nomReads][0] == '100M'):
+                    #print("je suis dans rm")
                     rm += 1
+                    nameMappedPerfect.append(nomReads) #récupère les noms des reads parfaitement mappés
+                else :
+                    #print("je suis dans rp")
+                    rp += 1
+                    nameMappedPartially.append(nomReads)
+                    if flag in pairedMapped1 and nomReads in nameMappedPerfect :
+                        pmp += 1
+
             if flag in unmapped :
-                ru +=1
-            if flag in
+                ru +=1 #compte reads non mappés
+                nameUnmapped.append(nomReads)
+            if flag in pairedMapUnmap : #and nomReads in nameMappedPerfect:
+                ppu += 1 #paires partiellement mappés/non mappés
+                #print(nomReads)
+            if flag in pairedMapUnmap and nomReads in nameMappedPerfect:
+                pmu += 1
+            if flag in pairedUnmapped :
+                puu +=1
 
-
+    #print(nameMappedPartially)
+                
     print("reads perfectly mapped ",rm)
     print("reads partially mapped ", rp)
     print("total mapped (cm +cp) ", rm+rp)
     print("total mapped (boucle 1) ",m)
     print("reads unmapped (boucle n) ",ru)
     print("reads unmapped (boucle 1) ",u)
-
-
-
+    print("paired partially mapped/unmapped ", ppu)
+    print("paired mapped/unmapped ", pmu)
+    print("paired mapped/partially mapped ",pmp)
+    print("paired unmapped/unmapped ", puu) 
         
         
 if len(sys.argv) == 2 :
