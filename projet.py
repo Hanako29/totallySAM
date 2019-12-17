@@ -1,33 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import re, sys
-#re pour la fonction de recherche (re.search)
-
-
+#Importation des modules
+import re, sys, os
+#re : fonction de recherche (re.search)
+#sys : utilisation de la liste des paramètres
+#os : exceptions
 
 #***********************************************************************************************
-##Lecture du fichier et extraction
 
+#Main
 def main(inputSam) :
-    print("Lancement de l'extraction")
-    #print(extraction(inputSam))
-    extraction(inputSam)
-    print("Fin extraction")
-    desc(extraction(inputSam))
+
+    print(inputSam)
+    
+    print("Extraction : start") #Print for the beginning of the extraction step
+    #print(extraction(inputSam)) #Uncomment for dictionnary printing
+    extraction(inputSam) #Extract reads name, FLAG, CIGAR and TAG MD:Z from SAM file and import it in a dictionnary (Key = Flag) of dictionnary (Key = read names)
+    print("Extraction : end") #Print for the end of the extraction
+    
+    print("Reads Analysis : Start") # Print for the begining of the reads analysis
+    desc(extraction(inputSam)) #Count the number of unmapped reads, mapped reads, partially mapped reads and paires of mapped/unmapped reads and paires of mapped/partially mapped reads 
+    print("Reads Analysis : End")
     
 
+#Read file and reads extraction from SAM file
 def extraction(inputSam) :
-    with open("mapping.sam", "r") as fSam :
-        
-        next(fSam) #Saute la 1ere ligne
-        next(fSam) #Saute la 2eme ligne
+    
+    with open(inputSam, "r") as fSam : #Open SAM file (reading)
 
-        dicoExt = {} #dico d'extraction
-        #flag = []
-        #nomReads = []
-        #cigar = []
-        #tagMDZ = []
+        #We don't take the two first lines in SAM file for reads extraction
+        next(fSam) #next function skip a line
+        next(fSam)
+
+        dicoExt = {} #create a dictionnary for extraction that will contains reads data
         
         for reads in fSam :
             col = reads.split("\t")
@@ -43,6 +49,8 @@ def extraction(inputSam) :
                 resTagMDZ = resTagMDZ.group(0)[:-1] #[:-1] enlève \t
                 #tagMDZ.append(resTagMDZ)
                 tagMDZ = resTagMDZ
+
+            #Appel de la fonction remplissage pour remplir le dictionnaire de dictionnaires
             remplissage(dicoExt,flag,nomReads,cigar, tagMDZ)
 
  
@@ -164,11 +172,58 @@ def desc(extraction) : #pas besoin de mettre l'input quand prend une entrée une
     print("reads unmapped (boucle 1) ",u)
     print("paired partially mapped/unmapped ", ppu)
     print("paired mapped/unmapped ", pmu)
-    print("paired mapped/partially mapped ",pmp)
+    print("paired mapped/partially mapped ",pmp)# pmu + pmp
     print("paired unmapped/unmapped ", puu) 
         
+if len(sys.argv) == 2 : #Marche
+
+    if os.stat(sys.argv[1]).st_size > 0 : #Marche
+
+        if os.path.isfile(sys.argv[1]) and sys.argv[1].endswith('.sam') : #Marche
+
+            print("C'est un fichier Sam non vide")
+
+            with open(sys.argv[1], "r") as file :
+                ligne = file.readline()
+                print(ligne)
+                res = re.search("[^@].*", ligne) #vérifie que 1ère ligne a arobase
+            
+                if res :
+                    print("Fichier non corrompu")
+                    main(sys.argv[1])
+
+                    #Ajouter condition ou j'ai pas ligne des reads
+
+                else :
+                    print("Fichier corrompu (aucune ligne sans arobase)")
+                    sys.exit()
+            
+        else :
+
+            print("Attention ce n'est pas un fichier, ou pas un fichier au format SAM")
+
         
-if len(sys.argv) == 2 :
-    main(sys.argv[1])
+
+    else :
+            print("Le fichier est vide")
+    
+    #try :
+        
+    #    with open(sys.argv[1], "r") as file:
+    #        ligne = file.readlines()
+            #print(ligne)
+    #        for i in ligne :
+    #            if re.search("^[^@].*", i):
+                    
+           
+
+    #except IOError :# as err :
+        #print("OS error : {}".format(err))
+    #    print("Le fichier est vide")
+    #    sys.exit()
+
+    #else :
+    #    print("Processing")
+        
 else :
-    print("Le nom du fichier à analyser doit être spécifié en premier argument (après l'appel du programme)")
+        print("Le nom du fichier à analyser doit être spécifié en premier argument (après l'appel du programme) et doit être un fichier sam")
