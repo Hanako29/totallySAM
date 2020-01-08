@@ -12,9 +12,8 @@ import re, sys, os
 #Main
 def main(inputSam) :
 
-    print(inputSam)
+    print("File Name : ",inputSam)
     
-    print("Extraction : start") #Print for the beginning of the extraction step
     #print(extraction(inputSam)) #Uncomment for dictionnary printing
     extraction(inputSam) #Extract reads name, FLAG, CIGAR and TAG MD:Z from SAM file and import it in a dictionnary (Key = Flag) of dictionnary (Key = read names)
     print("Extraction : end") #Print for the end of the extraction
@@ -29,13 +28,27 @@ def extraction(inputSam) :
     
     with open(inputSam, "r") as fSam : #Open SAM file (reading)
 
-        #We don't take the two first lines in SAM file for reads extraction
-        next(fSam) #next function skip a line
-        next(fSam)
+        print("File description : ")#Print the file description
 
         dicoExt = {} #create a dictionnary for extraction that will contains reads data
+
+        ######################### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #Ici, si je décommente, ça marche plus !
+        #for reads in fSam :
+        #descReads = re.search("^@.*", reads)
+        #while descReads :
+        #    print(reads)
+
+        #Ce que j'essaye de faire c'est de récupérer les lignes qui commencent par un arobase pour récupérer la description du fichier et après pouvoir les nexter mais cette partie fonctionne pas alors je peux pas fusionner cette boucle avec celle de l'extraction ...
+
+        next(fSam)
+        next(fSam)
+
+        print("Extraction : start") #Print for the beginning of the extraction step
+
         
         for reads in fSam :
+
             col = reads.split("\t")
             #flag.append(col[1])
             #nomReads.append(col[0])
@@ -50,11 +63,9 @@ def extraction(inputSam) :
                 #tagMDZ.append(resTagMDZ)
                 tagMDZ = resTagMDZ
 
-            #Appel de la fonction remplissage pour remplir le dictionnaire de dictionnaires
+                #Appel de la fonction remplissage pour remplir le dictionnaire de dictionnaires
             remplissage(dicoExt,flag,nomReads,cigar, tagMDZ)
 
- 
-        
         return dicoExt
         
 
@@ -183,47 +194,29 @@ if len(sys.argv) == 2 : #Marche
 
             print("C'est un fichier Sam non vide")
 
-            with open(sys.argv[1], "r") as file :
-                ligne = file.readline()
-                print(ligne)
-                res = re.search("[^@].*", ligne) #vérifie que 1ère ligne a arobase
+            file = open(sys.argv[1], "r")
+            ligne = file.readline()
+            #print(ligne)
+            res = re.search("[^@].*", ligne) #vérifie que 1ère ligne a arobase
             
-                if res :
-                    print("Fichier non corrompu")
-                    main(sys.argv[1])
+            if res :
+                print("Fichier non corrompu")
+                file.close()
+                main(sys.argv[1])
 
-                    #Ajouter condition ou j'ai pas ligne des reads
+                    #Ajouter condition ou j'ai pas toutes les colonnes pour les reads
 
-                else :
-                    print("Fichier corrompu (aucune ligne sans arobase)")
-                    sys.exit()
+            else :
+                print("Fichier corrompu (aucune ligne sans arobase)")
+                sys.exit()
             
         else :
-
             print("Attention ce n'est pas un fichier, ou pas un fichier au format SAM")
 
         
 
     else :
-            print("Le fichier est vide")
-    
-    #try :
-        
-    #    with open(sys.argv[1], "r") as file:
-    #        ligne = file.readlines()
-            #print(ligne)
-    #        for i in ligne :
-    #            if re.search("^[^@].*", i):
-                    
-           
-
-    #except IOError :# as err :
-        #print("OS error : {}".format(err))
-    #    print("Le fichier est vide")
-    #    sys.exit()
-
-    #else :
-    #    print("Processing")
+            print("Le fichier est vide")          
         
 else :
         print("Le nom du fichier à analyser doit être spécifié en premier argument (après l'appel du programme) et doit être un fichier sam")
