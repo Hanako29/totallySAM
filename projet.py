@@ -36,26 +36,74 @@ def extraction(inputSam) :
         readNumber = 0
         corruptedRead = 0
 
-        SN = ""
-        LN = ""
+        #Description of @HD header's line
+        HDpresent = 0
+        
+        #Description of @SQ header's line
+        SQpresent = 0
+
+        #Description of @PG header's line
+        PGpresent = 0
+
+        #Description of @RG header's line
+        RGpresent = 0
 
         #Extract headers lines and reads lines
         for reads in fSam :
             descReads = re.search("^@.*", reads) #research line with @ at the beginning
+
+            #If the line begin with "@" its a description line
             if descReads :
-                headerN += 1
-                #print(reads)
-                resSQ = re.search("@SQ",reads)
-                SQpresent = 1
+                headerN += 1 #Count header's line number 
+
+                #Description of header line
+                resHD = re.search("^@HD",reads) 
+                if resHD :
+                    HDpresent = 1
+                    reshVN = re.search("(VN\:.*\t|VN\:.*\n$)", reads) #Get Version format
+                    if reshVN :
+                        hVN = reshVN.group(0)[3:-1]
+                        hVN_split = hVN.split("\t")
+                        hVN = hVN_split[0]
+                    
+                #Description of refence sequence line
+                resSQ = re.search("^@SQ",reads)
                 if resSQ :
-                    resSN = re.search("(SN\:.*\t|SN\:.*\n$)", reads)
+                    SQpresent = 1
+                    resSN = re.search("(SN\:.*\t|SN\:.*\n$)", reads) #Get Reference sequence name
                     if resSN :
-                        SN = resSN.group(0)[3:-1]
-                    resLN = re.search("(LN\:.*\t|LN\:.*\n$)",reads)
+                        sSN = resSN.group(0)[3:-1]
+                        sSN_split = sSN.split("\t")
+                        sSN = sSN_split[0]
+                    resLN = re.search("(LN\:.*\t|LN\:.*\n$)",reads) #Get reference sequence length
                     if resLN :
-                        LN = resLN.group(0)[3:-1]
+                        sLN = resLN.group(0)[3:-1]
+                        sLN_split = sLN.split("\t")
+                        sLN = sLN_split[0]
+
+                #Description of program line
+                resPG = re.search("^@PG", reads) 
+                if resPG :
+                    PGpresent = 1
+                    respID = re.search("(ID\:.*\t|ID\:.*\n$)",reads) #Get program identifier
+                    if respID :
+                        pID = respID.group(0)[3:-1]
+                        pID_split = pID.split("\t")
+                        pID = pID_split[0]
+
+                #Description of read group
+                resRG = re.search("^@RG",reads)
+                if resRG :
+                    RGpresent = 1
+                    resrID = re.searche("(ID\:.*\t|ID\:.*\n$)",reads) #Read group identifier
+                    if resrID :
+                        rID = respID.group(0)[3:-1]
+                        rID_split = rID.split("\t")
+                        rID = rID_split[0]
+
+            #If the line is a read, the program proceed to extraction 
             else :
-                readNumber += 1
+                readNumber += 1 #Count the number of reads
                 #print(reads)
             
                 col = reads.split("\t") #split the read after each tabulation for
@@ -66,8 +114,7 @@ def extraction(inputSam) :
                 if len(col) < 10 : 
                     print("WARNING : the column number for one read is not in accord with sam standard file")
                     corruptedRead += 1
-                    #sys.exit()
-                    #if my read have less than 10 columns, the program print an WARNING message and stop the loop because the file may be corrupted
+                    #if my read have less than 10 columns, the program print an WARNING message 
             
                 #flag.append(col[1])
                 #nomReads.append(col[0])
@@ -92,19 +139,28 @@ def extraction(inputSam) :
                     #Call the "incompleteFill" function to fill the dictionnary (without MD:Z)
 
 
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("File Description :")
+
+        if HDpresent == 1 :
+            print(" - Format version :", hVN)
+        
         if SQpresent == 1 :
-            print("Reference sequence name :",SN)
-            print("Reference sequence lenght :",LN)
-            print("\n")
+            print(" - Reference sequence name :",sSN)
+            print(" - Reference sequence lenght :",sLN)
 
+        if PGpresent == 1 :
+            print(" - Program identifier :", pID)
 
-        print("Extraction informations")
-        print("Number of header lines :", headerN)
-        print("Total number of reads : ",readNumber)
-        print("Total of corrupted reads (ignored in description and analysis) : ", corruptedRead)
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n")
+        if RGpresent == 1 :
+            print(" - Read group identifier :",rID)
+
+        print("\n")
+        print("File informations :")
+        print(" - Number of header lines :", headerN)
+        print(" - Total number of reads : ",readNumber)
+        print(" - Total of corrupted reads (ignored in description and analysis) : ", corruptedRead)
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n")
 
         print(" Extraction : End \n") #Print for the end of the extraction
 
@@ -135,10 +191,11 @@ def completeFill(dicoExt, flag, nomReads, cigar, tagMDZ) :
         dicoExt[flag] = {nomReads : [cigar, tagMDZ]}
         #if the flag doesn't exist in the first dictionnary, the program creates a new key for the first dictionnary
 
+#fill function where no MDZ is add (when the read description doesn't give MDZ information
 def incompleteFill(dicoExt, flag, nomReads, cigar) :
 
     #Create a dictionnary with flag for key and the second dictionnary for value
-    #The second dictionnary has name read as keay and cigar and MD:Z (tagMDZ) as values
+    #The second dictionnary has name read as keay and cigar
 
     if flag in dicoExt : 
         dicoExt[flag][nomReads] = [cigar]
@@ -169,11 +226,10 @@ def desc(extraction) :
     pairedUnmapped = [77]
                     
     #read counters
-    m = 0 #mapped pour comparer boucle 1 et 2
-    rm = 0 #mapped
-    u = 0 #unmapped boucle 1
+    rm = 0 #mapped perfectly
     ru = 0 #unmapped
     rp = 0 #partially mapped
+    uncommon = 0 #read with uncommon flag, these reads are ignored in pair analysis
 
     #pair counters
     pm = 0 #pair perfectly mapped
@@ -183,78 +239,62 @@ def desc(extraction) :
     puu = 0 #paires unmapped unmapped
     ppu = 0 #paires partial unmapped
     
-
-    #boucle 1 : description rapide (juste reads mappés et non mappés)
-    #for flag in dicoExt :
-    #    for nomReads in dicoExt[flag]:
-    #        #print(flag)
-    #        if flag in mapped :
-            #    print("je suis dans mapped")
-    #            m += 1
-    #        elif flag in unmapped : #elif = else if
-            #    print("là non")
-    #            u += 1
-    #print("total reads boucle ",m+u)
-
-    #for flag in dicoExt :
-    #    for nomReads in dicoExt[flag]:
-    #        print(dicoExt[flag][nomReads][0])   #print(cigar)
-
-    
-    #for flag in dicoExt :
-    #    for nomReads in dicoExt[flag]:
-    #        print(dicoExt[flag][nomReads][1]) #print(tagMD:Z)
-
- 
-    
-    #boucle 2 : réelle
-
+    #List of reads name for each class
     nameMappedPerfect = []
     nameMappedPartially = []
     nameUnmapped = []
-    
+
+    #Counting loop
     for flag in dicoExt :
         for nomReads in dicoExt[flag]:
-            if flag in mapped :
+            
+            if flag in mapped : #if flag matches mapped score
                 if (dicoExt[flag][nomReads][1] == 'MD:Z:100' or dicoExt[flag][nomReads][0] == '100M'):
                     #print("je suis dans rm")
                     rm += 1
                     nameMappedPerfect.append(nomReads) #récupère les noms des reads parfaitement mappés
-                else :
+                    
+                else : 
                     #print("je suis dans rp")
                     rp += 1
                     nameMappedPartially.append(nomReads)
                     if flag in pairedMapped1 and nomReads in nameMappedPerfect :
                         pmp += 1
 
-            if flag in unmapped :
+            if flag in unmapped : #if flag matches unmapped score
                 ru +=1 #compte reads non mappés
                 nameUnmapped.append(nomReads)
+
+            if not flag in mapped and not flag in unmapped : #if the read doesn't matches any flag (the flag is uncommon)
+                uncommon += 1 
+                
+                
             if flag in pairedMapUnmap : #and nomReads in nameMappedPerfect:
                 ppu += 1 #paires partiellement mappés/non mappés
                 #print(nomReads)
+                
             if flag in pairedMapUnmap and nomReads in nameMappedPerfect:
                 pmu += 1
+                
             if flag in pairedUnmapped :
                 puu +=1
 
-    #print(nameMappedPartially)
 
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Reads description :")
-    print("reads perfectly mapped ",rm)
-    print("reads partially mapped ", rp)
-    print("total mapped (cm +cp) ", rm+rp)
-    #print("total mapped (boucle 1) ",m)
-    print("reads unmapped (boucle n) ",ru)
-    #print("reads unmapped (boucle 1) ",u)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("Reads description")
+    print(" - Reads perfectly mapped : \t",rm)
+    print(" - Reads partially mapped : \t", rp)
+    #print("- Total mapped reads : \t", rm+rp)
+    print(" - Reads unmapped : \t \t",ru)
+    print(" - Reads with uncommon flag : \t",uncommon)
+
+    print("\n")
     print("Pairs description")
-    print("paired partially mapped/unmapped ", ppu)
-    print("paired mapped/unmapped ", pmu)
-    print("paired mapped/partially mapped ",pmp)# pmu + pmp
-    print("paired unmapped/unmapped ", puu)
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n")
-
+    print(" - Pairs partially mapped/unmapped : \t", ppu)
+    print(" - Pairs mapped/unmapped : \t \t", pmu)
+    print(" - pairs mapped/partially mapped : \t",pmp)# pmu + pmp
+    print(" - pairs unmapped/unmapped : \t \t", puu)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n")
 
     print("Reads Analysis : End") # Print for the end of the reads analysis
 
