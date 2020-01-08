@@ -1,58 +1,59 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#Importation des modules
+#module importation
 import re, sys, os
 #re : fonction de recherche (re.search)
 #sys : utilisation de la liste des paramètres
-#os : exceptions
+#os : verify file
 
+#***********************************************************************************************
 #***********************************************************************************************
 
 #Main
 def main(inputSam) :
 
-    print("File Name : ",inputSam)
+    print("File Name : ",inputSam) #print file name
     
-    #print(extraction(inputSam)) #Uncomment for dictionnary printing
-    extraction(inputSam) #Extract reads name, FLAG, CIGAR and TAG MD:Z from SAM file and import it in a dictionnary (Key = Flag) of dictionnary (Key = read names)
-    print("Extraction : end") #Print for the end of the extraction
+    #print(extraction(inputSam)) #Uncomment for dictionnary printing    
     
     print("Reads Analysis : Start") # Print for the begining of the reads analysis
     desc(extraction(inputSam)) #Count the number of unmapped reads, mapped reads, partially mapped reads and paires of mapped/unmapped reads and paires of mapped/partially mapped reads 
-    print("Reads Analysis : End")
-    
+    print("Reads Analysis : End") # Print for the end of the reads analysis
 
-#Read file and reads extraction from SAM file
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+#Read file and extract reads name, FLAG, CIGAR and TAG MD:Z from SAM file and import it in a dictionnary (Key = Flag) of dictionnary (Key = read names)
 def extraction(inputSam) :
     
     with open(inputSam, "r") as fSam : #Open SAM file (reading)
 
-        print("File description : ")#Print the file description
-
-        dicoExt = {} #create a dictionnary for extraction that will contains reads data
-
-
-
-
-
-        #next(fSam)
-        #next(fSam)
+        print("\n File description :")#Print the file description
+        
+        for reads in fSam :
+            descReads = re.search("^@.*", reads)
+            if descReads :
+                print(reads)
+            else :
+                break
 
         print("Extraction : start") #Print for the beginning of the extraction step
 
+        dicoExt = {} #create a dictionnary for extraction that will contains reads data
+        
+       # next(fSam)
+       # next(fSam)
         
         for reads in fSam :
-
-            ######################### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #Le beug est ici
-            descReads = re.search("^@.*", reads)
-            while descReads :
-                print(reads)
-
-                #Ce que j'essaye de faire c'est de récupérer les lignes qui commencent par un arobase pour récupérer la description du fichier et après pouvoir les nexter mais cette partie fonctionne pas et ne m'affiche que 14 mille fois la première ligne
-                
+            
             col = reads.split("\t")
+
+            #Does my file contain the right number of column (9 tab and 10 column)
+            if len(col) < 10 :
+                print("WARNING : the column number is not in accord with sam standard file")
+                break
+            
             #flag.append(col[1])
             #nomReads.append(col[0])
             #cigar.append(col[5])
@@ -69,9 +70,10 @@ def extraction(inputSam) :
                 #Appel de la fonction remplissage pour remplir le dictionnaire de dictionnaires
             remplissage(dicoExt,flag,nomReads,cigar, tagMDZ)
 
+        print("Extraction : end \n") #Print for the end of the extraction
+
         return dicoExt
         
-
         #print(flag)
         #print(nomReads)
         #print(cigar)
@@ -82,7 +84,7 @@ def extraction(inputSam) :
         #print(len(tagMDZ))
         #Même longueur de la liste partout sauf tagMDZ (mais c'est une info optionnelle)
 
-        
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
 def remplissage(dicoExt, flag, nomReads, cigar, tagMDZ) :
 
@@ -207,15 +209,12 @@ if len(sys.argv) == 2 : #Marche
                 file.close()
                 main(sys.argv[1])
 
-                    #Ajouter condition ou j'ai pas toutes les colonnes pour les reads
-
             else :
                 print("Fichier corrompu (aucune ligne sans arobase)")
                 sys.exit()
             
         else :
             print("Attention ce n'est pas un fichier, ou pas un fichier au format SAM")
-
         
 
     else :
