@@ -32,23 +32,26 @@ def extraction(inputSam) :
 
         dicoExt = {} #create a dictionnary for extraction that will contains reads data
 
-        ######################### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        #Ici, si je décommente, ça marche plus !
-        #for reads in fSam :
-        #descReads = re.search("^@.*", reads)
-        #while descReads :
-        #    print(reads)
 
-        #Ce que j'essaye de faire c'est de récupérer les lignes qui commencent par un arobase pour récupérer la description du fichier et après pouvoir les nexter mais cette partie fonctionne pas alors je peux pas fusionner cette boucle avec celle de l'extraction ...
 
-        next(fSam)
-        next(fSam)
+
+
+        #next(fSam)
+        #next(fSam)
 
         print("Extraction : start") #Print for the beginning of the extraction step
 
         
         for reads in fSam :
 
+            ######################### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #Le beug est ici
+            descReads = re.search("^@.*", reads)
+            while descReads :
+                print(reads)
+
+                #Ce que j'essaye de faire c'est de récupérer les lignes qui commencent par un arobase pour récupérer la description du fichier et après pouvoir les nexter mais cette partie fonctionne pas et ne m'affiche que 14 mille fois la première ligne
+                
             col = reads.split("\t")
             #flag.append(col[1])
             #nomReads.append(col[0])
