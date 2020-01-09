@@ -1,15 +1,43 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |                                                         totallySAM.py                                                     |
-|                                                       SAM file analysis                                                   |
+|                                                     SAM file analysis tool                                                |
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Auteur :
-  Anaïs Prud'homme
+Author :
+  Anaïs Prud'homme (prudhomme.anais.12@outlook.fr)
   M1 SNS - BCD
   HMIN113M 
+  WOOHP coorporation
   
 Date :
-  creation : 
+  creation date : 12-nov-2019
+  first version : 09-jan-2020
+  
+Requierements :
+  To accomplish its mission, totallySAM requires Python3.
+  You can install Python3 by running :
+    < sudo apt-get install python3 >
+    
+Description :
+  totallySAM.py is a bioinformatic tool for SAM file analysis. 
+  The standard programm will return :
+    - Short file description
+    - number of perfectly mapped reads, number of partially mapped reads and number of unmapped reads
+    - number of mapped/unmapped pairs, number of mapped/mapped reads, number of partially_mapped/mapped reads and the number of partially_mapped/unmapped reads
+    
+  You can use it with an option to get, for partially mapped reads, the number of substitutions.
+  The script has been coded under Python3
+  
+  
+If you have a mission for totallySAM.py : How to run totallySAM.py ?
+  To run totallySAM, you need to use the command line :
+    
+    Standard version
+    < Python3 ./totallySAM.py samfile.sam >
+    
+    With variant calling option
+    < Python3 ./totallySAM.py samfile.sam -v >
+ 
 
 Programme de statistiques d'alignement d'un fichier SAM 
 
