@@ -3,9 +3,9 @@
 
 #module importation
 import re, sys, os
-#re : fonction de recherche (re.search)
-#sys : utilisation de la liste des paramètres
-#os : verify file
+#re : re.search function
+#sys : parameters list
+#os : for "checking file" part
 
 #***********************************************************************************************
 #***********************************************************************************************
@@ -27,7 +27,7 @@ def extraction(inputSam) :
     
     with open(inputSam, "r") as fSam : #Open SAM file (reading)
 
-        print("\n Extraction and file description : Start")#Print the file description
+        print("\n Extraction and file description : Start \n")#Print the file description
 
         headerN = 0
 
@@ -124,10 +124,10 @@ def extraction(inputSam) :
                 cigar = col[5] #get cigar dor each read (6th column)
 
                 #TagMDZ 
-                resTagMDZ = re.search("(MD\:Z\:.*?\t)", reads) #MD:Z is a optionnal information
+                resTagMDZ = re.search("((MD\:Z\:.*?)\t)", reads) #MD:Z is a optionnal information
                 #if the read contains MD:Z, get MD:Z for the read
                 if resTagMDZ : 
-                    resTagMDZ = resTagMDZ.group(0)[:-1] #[:-1] delete \t
+                    resTagMDZ = resTagMDZ.group(1)[:-1]# to get "MD:Z:.*" without the tabulation
                     #tagMDZ.append(resTagMDZ)
                     tagMDZ = resTagMDZ
 
@@ -162,7 +162,7 @@ def extraction(inputSam) :
         print(" - Total of corrupted reads (ignored in description and analysis) : ", corruptedRead)
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n")
 
-        print(" Extraction : End \n") #Print for the end of the extraction
+        print(" Extraction : Finished \n") #Print for the end of the extraction
 
         return dicoExt #return the dictionnary that contains flag (key for the first dictionnary), the read name (key for the second dictionnary), cigar and MD:Z for each read
         
@@ -218,11 +218,11 @@ def desc(extraction) :
     mapped = [67, 73, 83, 89, 97, 99, 115, 121, 131, 137, 145, 147, 153, 163, 179, 185]
     unmapped = [63, 69, 77, 101, 117, 133, 141, 165, 181]
 
+#####
     #flag for each class : pairs description
     pairedMapped1 = [99, 83, 67, 115, 81, 97, 65, 113, 147, 163, 131, 179, 161, 145, 129, 177] #1st read puis 2nd read
     pairedMapped2 = [147, 163, 131, 179, 161, 145, 129, 177] #2nd read
-    #pairedMapUnmap = [73, 89, 121, 153, 185, 137] #just the mapped read
-    pairedMapUnmap = [133, 165, 181, 101, 117, 69] #just the unmapped read
+    pairedMapUnmap = [73, 89, 121, 137, 153, 185] #just the unmapped read
     pairedUnmapped = [77]
                     
     #read counters
@@ -235,56 +235,75 @@ def desc(extraction) :
     pm = 0 #pair perfectly mapped
     pmu = 0 #one mapped, one unmapped
     pmp = 0 #one mapped, one partially
-    pmm = 0 #paire mapped mapped
-    puu = 0 #paires unmapped unmapped
-    ppu = 0 #paires partial unmapped
+    pmm = 0 #pair mapped mapped
+    puu = 0 #pair unmapped unmapped
+    ppu = 0 #pair partial unmapped
     
-    #List of reads name for each class
-    nameMappedPerfect = []
-    nameMappedPartially = []
-    nameUnmapped = []
+    #List of reads name for each class (for pairs counting)
+    nameMappedPerfect = [] #stock perfectly mapped name
+    nameMappedPartially = [] #stock partially mapped name
+    nameUnmapped = [] #stock unmapped name
 
     #Counting loop
-    for flag in dicoExt :
-        for nomReads in dicoExt[flag]:
+    for flag in dicoExt : #for each flag
+        for nomReads in dicoExt[flag]: #for each read
             
-            if flag in mapped : #if flag matches mapped score
+            if flag in mapped :
+            #if flag matches mapped score
+
+                #Get mapped reads
                 if (dicoExt[flag][nomReads][1] == 'MD:Z:100' or dicoExt[flag][nomReads][0] == '100M'):
-                    #print("je suis dans rm")
                     rm += 1
-                    nameMappedPerfect.append(nomReads) #récupère les noms des reads parfaitement mappés
-                    
-                else : 
-                    #print("je suis dans rp")
-                    rp += 1
-                    nameMappedPartially.append(nomReads)
-                    if flag in pairedMapped1 and nomReads in nameMappedPerfect :
+                    nameMappedPerfect.append(nomReads)
+                    #if the MD:Z score and cigar show perfect mapping :
+                       #(1) count one more perfectly mapped read
+                       #(2) add perfect mapped read names to the list
+
+                #Get partially mapped reads
+                else :
+                    rp += 1 
+                    nameMappedPartially.append([nomReads,dicoExt[flag][nomReads][1]])
+                    #if alignment score if not 100 (read length) :
+                       #(1) count one more partially mapped read ;
+                       #(2) add read name and MD:Z score to the list (MD:Z score for variant analysis option)
+
+
+                    #Get perfectly mapped/partially mapped pairs
+                    if flag in pairedMapped1 and nomReads in nameMappedPerfect : 
                         pmp += 1
+                        #if the flag of one of the read is in mapped read and the read name in the list which contains perfect mapped read, count one more pair "perfectly mapped/partially"
 
-            if flag in unmapped : #if flag matches unmapped score
-                ru +=1 #compte reads non mappés
+            #Get unmapped reads            
+            if flag in unmapped :
+                ru +=1
                 nameUnmapped.append(nomReads)
+                #if flag matches unmapped score : count one more unmapped read
+                
+            #Get read with uncommon flag (ignored for the analysis)
+            if not flag in mapped and not flag in unmapped :
+                uncommon += 1
+                #if the flag doesn't match both mapped and unmapped score, count one more read with uncommon flag (ignored within analysis)
 
-            if not flag in mapped and not flag in unmapped : #if the read doesn't matches any flag (the flag is uncommon)
-                uncommon += 1 
-                
-                
-            if flag in pairedMapUnmap : #and nomReads in nameMappedPerfect:
-                ppu += 1 #paires partiellement mappés/non mappés
-                #print(nomReads)
-                
+            #Get Mapped perfectly/unmapped pair
+            if flag in pairedMapUnmap and nomReads in nameMappedPartially:
+                ppu += 1 
+                #if flag in map/unmapped list, count one more 
+
+            #Get mapped perfectly/unmapped pair
             if flag in pairedMapUnmap and nomReads in nameMappedPerfect:
                 pmu += 1
-                
+                #if flag in map/unmapped, count one more
+
+            #Get both unmapped read pairs
             if flag in pairedUnmapped :
                 puu +=1
-
-
+                #if flag in unmapped list, count one more
+    
+    #This bloc print results
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Reads description")
     print(" - Reads perfectly mapped : \t",rm)
     print(" - Reads partially mapped : \t", rp)
-    #print("- Total mapped reads : \t", rm+rp)
     print(" - Reads unmapped : \t \t",ru)
     print(" - Reads with uncommon flag : \t",uncommon)
 
@@ -296,7 +315,44 @@ def desc(extraction) :
     print(" - pairs unmapped/unmapped : \t \t", puu)
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n")
 
-    print("Reads Analysis : End") # Print for the end of the reads analysis
+    print("Reads Analysis : Finished") # Print for the end of the reads analysis
+
+    #If the user want to know if some partially mapped reads have substitutions, it call variantANalysis (the user specifies an other parameter
+    if len(sys.argv) == 3 :
+        if (sys.argv[2]) == "-v" :
+            VariantAnalysis(nameMappedPartially)
+    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def VariantAnalysis(nameMappedPartially) :
+
+    print("\n")
+    print("Variant analysis")
+    print("\n")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+    #If a nucleotide doesn't match, the MD:Z contains the new nucleotide
+    possibilities = ("A", "T", "G", "C")
+
+    for variantRead in nameMappedPartially : #for each read in partially mapped list
+
+        #Get read name (vRead) and MD:Z score (vMDZ)
+        vRead = variantRead[0] 
+        vMDZ = variantRead[1][5:] #Get MD:Z score without "MD:Z"
+
+        #itialise SNP at 0
+        SNP = 0
+
+        #for each character in MD:Z score, if it contains substitution (nucleotide), count one more mutation
+        for i in vMDZ :
+            if i in possibilities :
+                SNP += 1
+
+        #if the read contains substitution, print number of substitution per read
+        if SNP != 0 :
+            print("SNP for",vRead, ":", SNP)
+
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -306,7 +362,7 @@ def desc(extraction) :
 print(" Checking file : Start")
 
 #Does the user specified file name ?
-if len(sys.argv) == 2 :  #(check if there is an argument after program name)
+if len(sys.argv) >= 2 :  #(check if there is an argument after program name)
 
     #Does my file is empty ?
     if os.stat(sys.argv[1]).st_size > 1 : #if file size is higher than 1, continue (an empty sam file can have a size about 1)
@@ -330,7 +386,7 @@ if len(sys.argv) == 2 :  #(check if there is an argument after program name)
                 sys.exit()
             
         else : #If my file is not a file or not in SAM format, print error message
-            print("\n WARNING : This is not a file or the file is not a SAM file")
+            print("\n WARNING : This is not a file or the file is not a SAM extension")
         
 
     else : #If my file is empty, print error message
