@@ -1,5 +1,5 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|                                                      totallySAM.py 1.0.0                                                     |
+|                                                      totallySAM.py 1.0.0                                                  |
 |                                                     SAM file analysis tool                                                |
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -46,22 +46,13 @@ If you have a mission for totallySAM.py : How to run totallySAM.py ?
     The program need SAM format to run.
     
 Issues : 
-
- 
-
-Programme de statistiques d'alignement d'un fichier SAM 
-
-Ce programme permet d'obtenir des statistiques basiques d'alignements de séquences de 100 paires de bases.
-
-La première fonction "extraction" consiste à ouvrir le fichier SAM (fichier tabulé) et d'en extraire les données. Pour cela,
-la fonction divise le fichier par colonne (une colonne étant séparée d'une autre par une tabulation) et récupère les données
-nécessaires aux statistiques  :  le nom de la séquence, le FLAG, le cigar et le TAG MD:Z (ce dernier étant récupéré à partir 
-d'une recherche d'expression régulière car il n'est pas présent pour toutes les séquences). Ensuite, à partir de la fonction 
-remplissage, il va créer un dictionnaire qui aura pour clé le flag et pour valeur, un autre dictionnaire qui aura pour clé 
-le nom de la séquence et pour valeur le cigar et le TAG MD:Z.
-
-Le seconde grande fonction "desc" va comptabiliser : 
-- les séquences non mappés,
-- les séquences partiellement mappés,
-- les paires de séquences où une séquence est mappée, la seconde non mappée
-- les paires de séquences où une séquence est mappée, la seconde partiellement mappée
+  - The program doesn't compute flag score so it doesn't take into account uncommon flag (it only use common flag that you 
+    can find on https://www.samformat.info/sam-format-flag)
+  
+Commits :
+  - 23-nov-2019 : the program only return pairs and reads information
+  - 17-dec-2019 : the program check some file information to specify if the file is corrupted
+  - 8-jan-2019 : the program can now (optionnaly) count and return variant number per reads
+  
+Licence :
+  None
