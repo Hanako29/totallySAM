@@ -1,4 +1,16 @@
-# HMIN113M_ProjetPython
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|                                                         totallySAM.py                                                     |
+|                                                       SAM file analysis                                                   |
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Auteur :
+  Anaïs Prud'homme
+  M1 SNS - BCD
+  HMIN113M 
+  
+Date :
+  creation : 
+
 Programme de statistiques d'alignement d'un fichier SAM 
 
 Ce programme permet d'obtenir des statistiques basiques d'alignements de séquences de 100 paires de bases.
