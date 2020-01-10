@@ -78,3 +78,5 @@ Commits :
   
 Licence :
 	Creative commons
+	
+	The program is available on : https://github.com/Hanako29/totallySAM
