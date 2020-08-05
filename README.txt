@@ -23,8 +23,7 @@ Description :
 	The standard programm will return :
     - Short file description
     - number of perfectly mapped reads, number of partially mapped reads and number of unmapped reads
-    - number of mapped/unmapped pairs, number of mapped/mapped reads, number of partially_mapped/mapped reads and the number 
-      of partially_mapped/unmapped reads
+    - number of mapped/unmapped pairs, number of mapped/mapped reads, number of partially_mapped/mapped reads and the number of partially_mapped/unmapped reads
     
 	You can use it with an option to get, for partially mapped reads, the number of substitutions.
 	The script has been coded under Python3.
@@ -48,27 +47,22 @@ If you have a mission for totallySAM.py : How to run totallySAM.py ?
 Results :
 	The program print SAM file information :
 		- File Name
-		- File Description (Format Version, Reference sequence name, Reference sequence length, Program Identifier, Read 
-			group identifier)
-		-Sequences Description (Number of header lines, Number of reads, Number of corrupted reads (ignored because it 
-			doesn't have the right column number, some information are missing))
+		- File Description (Format Version, Reference sequence name, Reference sequence length, Program Identifier, Read group identifier)
+		-Sequences Description (Number of header lines, Number of reads, Number of corrupted reads (ignored because it doesn't have the right column number, some information are missing))
 			
 	The program print analysis results : 
-		- number of reads which are : perfectly mapped (without substitution), partially mapped (one or more nucléotides
-			aren't mapped), unmapped (none nucleotide is mapped)
+		- number of reads which are : perfectly mapped (without substitution), partially mapped (one or more nucléotides aren't mapped), unmapped (none nucleotide is mapped)
 		- pairs :
 			- one read is partially mapped, the mate is unmapped
 			- one read is perfectly mapped, the mate is unmapped
 			- one read is partially mapped, the mate is perfectly mapped
 			- both reads are unmapped
 			
-	If the user run optionnal version, the program wil also print, for each read, the read name and the number of 
-	substitution (the nucleotide differs from reference).
+	If the user run optionnal version, the program wil also print, for each read, the read name and the number of substitution (the nucleotide differs from reference).
 	
     
 Issues : 
-	- The program doesn't compute flag score so it doesn't take into account uncommon flag (it only use common flag that you 
-	  can find on https://www.samformat.info/sam-format-flag)
+	- The program doesn't compute flag score so it doesn't take into account uncommon flag (it only use common flag that you can find on https://www.samformat.info/sam-format-flag)
 	- The program doesn't export results in a file 
   
 Commits :
